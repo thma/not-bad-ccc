@@ -1,98 +1,109 @@
-{-# LANGUAGE GADTs, StandaloneDeriving, NoImplicitPrelude, FlexibleInstances  #-}
+{-# LANGUAGE FlexibleInstances  #-}
+{-# LANGUAGE GADTs              #-}
+{-# LANGUAGE NoImplicitPrelude  #-}
+{-# LANGUAGE StandaloneDeriving #-}
+{-# LANGUAGE ConstraintKinds #-}
+{-# LANGUAGE AllowAmbiguousTypes #-}
 
 module Cat where
-import Control.Category
-import Prelude hiding ((.), id)
 
+import           Control.Category
+import           Prelude          hiding (id, (.))
+import           Data.Bifunctor   (bimap)
 
 class Category k => Monoidal k where
-    parC :: k a c -> k b d -> k (a,b) (c,d)
-
+  parC :: k a c -> k b d -> k (a, b) (c, d)
 
 class Monoidal k => Cartesian k where
-    fstC :: k (a,b) a 
-    sndC :: k (a,b) b 
-    dupC :: k a (a,a) 
+  fstC :: k (a, b) a
+  sndC :: k (a, b) b
+  dupC :: k a (a, a)
 
 class Cartesian k => Closed k where
-    applyC :: k (k a b,a) b 
-    curryC :: k (a,b) c -> k a (k b c)
-    uncurryC :: k a (k b c) -> k (a,b) c
+  applyC :: k (k a b, a) b
+  curryC :: k (a, b) c -> k a (k b c)
+  uncurryC :: k a (k b c) -> k (a, b) c
 
-fanC f g = (parC f g) . dupC
+fanC :: Cartesian cat => cat b c -> cat b d -> cat b (c, d)
+fanC f g = parC f g . dupC
 
 idC :: Category k => k a a
 idC = id
 
 data FreeCat a b where
-    Comp :: FreeCat b c -> FreeCat a b -> FreeCat a c
-    Id :: FreeCat a a
-    Fst :: FreeCat (a,b) a
-    Snd :: FreeCat (a,b) b
-    Dup :: FreeCat a (a,a)
-    Par :: FreeCat a b -> FreeCat c d -> FreeCat (a,c) (b,d)
-    Add :: FreeCat (a,a) a
-    Mul :: FreeCat (a,a) a
-    Apply :: FreeCat (FreeCat a b, a) b
-    Curry :: FreeCat (a,b) c -> FreeCat a (FreeCat b c)
-    Uncurry :: FreeCat a (FreeCat b c) -> FreeCat (a,b) c
- 
+  Comp :: FreeCat b c -> FreeCat a b -> FreeCat a c
+  Id :: FreeCat a a
+  Fst :: FreeCat (a, b) a
+  Snd :: FreeCat (a, b) b
+  Dup :: FreeCat a (a, a)
+  Par :: FreeCat a b -> FreeCat c d -> FreeCat (a, c) (b, d)
+  Add :: (Num a) => FreeCat (a, a) a
+  Mul :: (Num a) => FreeCat (a, a) a
+  Apply :: FreeCat (FreeCat a b, a) b
+  Curry :: FreeCat (a, b) c -> FreeCat a (FreeCat b c)
+  Uncurry :: FreeCat a (FreeCat b c) -> FreeCat (a, b) c
+
 instance Closed FreeCat where
-    applyC = Apply
-    curryC = Curry
-    uncurryC = Uncurry
+  applyC = Apply
+  curryC = Curry
+  uncurryC = Uncurry
 
 deriving instance Show (FreeCat a b)
 
 instance Category FreeCat where
-    (.) = Comp
-    id = Id
+  (.) = Comp
+  id = Id
 
 instance Monoidal FreeCat where
-    parC = Par
+  parC = Par
 
 instance Cartesian FreeCat where
-    fstC = Fst
-    sndC = Snd
-    dupC = Dup
+  fstC = Fst
+  sndC = Snd
+  dupC = Dup
 
 instance Monoidal (->) where
-    parC f g = \(x,y) -> (f x, g y)  
+  parC f g = bimap f g
 
 instance Cartesian (->) where
-    fstC (x,y) = x
-    sndC (x,y) = y
-    dupC x = (x,x)
+  fstC (x, y) = x
+  sndC (x, y) = y
+  dupC x = (x, x)
+  
+instance Closed (->) where
+    applyC (f,x) = f x
+    curryC       = curry
+    uncurryC     = uncurry   
 
 class Cartesian k => NumCat k where
-    mulC :: Num a => k (a,a) a
-    negateC :: Num a => k a a
-    addC :: Num a => k (a,a) a
-    subC :: Num a => k (a,a) a
-    absC :: Num a => k a a
+  mulC :: Num a => k (a, a) a
+  negateC :: Num a => k a a
+  addC :: Num a => k (a, a) a
+  subC :: Num a => k (a, a) a
+  absC :: Num a => k a a
 
 instance NumCat (->) where
-    mulC = uncurry (*)
-    negateC = negate
-    addC = uncurry (+)
-    subC = uncurry (-)
-    absC = abs
+  mulC = uncurry (*)
+  negateC = negate
+  addC = uncurry (+)
+  subC = uncurry (-)
+  absC = abs
 
 instance NumCat FreeCat where
-    mulC = Mul
-    negateC = error "TODO"
-    addC = Add
-    subC = error "TODO"
-    absC = error "TODO"
+  mulC = Mul
+  negateC = error "TODO"
+  addC = Add
+  subC = error "TODO"
+  absC = error "TODO"
 
-instance Num (FreeCat z a) where
-    f + g = Add . (fanC f g)
-    f * g = Mul . (fanC f g)
-    negate f = error "todo" -- negateC . f
-    f - g = error " todo " -- subC . (fanC f g)
-    abs f = error " todo" -- absC . f 
-    signum = error "TODO"
-    fromInteger = error "TODO"
+instance (Num a) => Num (FreeCat z a) where
+  f + g = Add . (fanC f g)
+  f * g = Mul . (fanC f g)
+  negate f = error "todo" -- negateC . f
+  f - g = error " todo " -- subC . (fanC f g)
+  abs f = error " todo" -- absC . f
+  signum = error "TODO"
+  fromInteger = error "TODO"
 
 {-
 instance (NumCat k, Num a) => Num (k z a) where
@@ -100,7 +111,7 @@ instance (NumCat k, Num a) => Num (k z a) where
     f * g = mulC . (fanC f g)
     negate f = negateC . f
     f - g = subC . (fanC f g)
-    abs f = absC . f 
+    abs f = absC . f
     signum = error "TODO"
     fromInteger = error "TODO"
 -}
@@ -110,7 +121,7 @@ instance (NumCat k, Num a) => Num (k z a) where
 class BoolLike a where
     (&&) :: a -> a -> a
     (||) :: a -> a -> a
-    not :: a -> a 
-    ite :: a -> b -> c -> Either b c 
+    not :: a -> a
+    ite :: a -> b -> c -> Either b c
 
 -}

@@ -1,52 +1,83 @@
+{-# LANGUAGE AllowAmbiguousTypes       #-}
+{-# LANGUAGE FlexibleContexts          #-}
+{-# LANGUAGE GADTs                     #-}
+{-# LANGUAGE NoImplicitPrelude         #-}
+{-# LANGUAGE NoMonomorphismRestriction #-}
+{-# LANGUAGE PartialTypeSignatures     #-}
+{-# LANGUAGE TypeApplications          #-}
 
-
-{-# LANGUAGE  AllowAmbiguousTypes,  TypeApplications, PartialTypeSignatures, NoMonomorphismRestriction,  FlexibleContexts, NoImplicitPrelude
-#-}
--- NoMonomorphismRestriction,
 module Main where
 
-import Lib
-import CCC
-import Cat
-import Control.Category
-import Prelude hiding ((.), id)
-import Rewrite
+import           CCC
+import           Cat
+import           Control.Category
+import           Data.Data
+import           Data.Generics.Aliases
+import           Prelude               hiding (id, (.))
+import           Rewrite
+
+mapTuple :: (Data a, Typeable b) => (b -> b) -> a -> a
+mapTuple f = gmapT (mkT f)
+
+showSimplified :: FreeCat a b -> IO ()
+showSimplified = print . simplify
+
+compile :: (FreeCat a' a' -> FreeCat a' b) -> FreeCat a' b
+compile = simplify . toCCC
+
+interp :: FreeCat a b -> (a -> b)
+interp (Comp f g) = interp f . interp g
+interp (Par f g) = parC (interp f) (interp g)
+interp (Curry f) = error "curry not yet implemented"
+--interp (Uncurry f)  error "uncurry not yet implemented"
+interp Id  = idC
+interp Fst = fstC
+interp Snd = sndC
+interp Dup = dupC
+interp Add = addC
+interp Mul = mulC
+
+--Par :: FreeCat a b -> FreeCat c d -> FreeCat (a, c) (b, d)
+--Apply :: FreeCat (FreeCat a b, a) b
+--Curry :: FreeCat (a, b) c -> FreeCat a (FreeCat b c)
+--Uncurry :: FreeCat a (FreeCat b c) -> FreeCat (a, b) c
+
 main :: IO ()
 main = do
-	print example1
-	print example2
-	print example3
-	print example4
-	print example5
-	print example6
-	print example7
-	print example8
-	print example9
-	print example10
-	print example11
-	print example12
-	print example13
-	print example14
-	print example15
-	print example16
-	print example17
-	print example18
-	print example19
-	--print example20
-	print example21
-	print example22
-	print example23
-	print example24
-	print example25
-	print example26
+  showSimplified example1
+  showSimplified example2
+  showSimplified example3
+  showSimplified example4
+  showSimplified example5
+  showSimplified example6
+  showSimplified example7
+  showSimplified example8
+  showSimplified example9
+  showSimplified example10
+  showSimplified example11
+  showSimplified example12
+  showSimplified example13
+  showSimplified example14
+  showSimplified example15
+  showSimplified example16
+  showSimplified example17
+  showSimplified example18
+  showSimplified example19
+  showSimplified example21
+  showSimplified example22
+  showSimplified example23
+  showSimplified example24
+  showSimplified example25
+  showSimplified example26
 
 
-	--someFunc
 
+example2 :: FreeCat (a,b) (b,a)
 example2 = toCCC @FreeCat (\(x,y)->(y,x))
 
 -- You need to give the type sginature unfortunately. k is too ambiguous otherwise
 -- example3 :: Cartesian k => k _ _
+example3 :: FreeCat (b'1, b'2) (b'1, b'1)
 example3 = toCCC @FreeCat (\(z,y)->(z,z))
 
 example4 = toCCC @FreeCat (\((x,y),z) -> x)
@@ -65,15 +96,15 @@ example10 =  toCCC @FreeCat (\x -> x)
 example11 =  toCCC @FreeCat f where f = (\x y -> y)
 
 -- raw const is failing, but when you give it a name it doesn't. Very alarming.
--- This is almost certainly because of something in the Incoherent 
+-- This is almost certainly because of something in the Incoherent
 
 
---example12 :: Cartesian k => k (k a b) b  
+--example12 :: Cartesian k => k (k a b) b
 example12 =  toCCC @FreeCat ((\x y -> y) :: a -> b -> b)
 
 -- the following incorrectly fails. Early picking of incoherentinstamce seems to send it into case 3 of CCC rather than curry case 2.
 -- This isn't producing incorrect code, but it does suck.
--- doesnotwork =  toCCC @FreeCat (\x y -> y) 
+-- doesnotwork =  toCCC @FreeCat (\x y -> y)
 
 -- Even this is fine
 -- example16 =  toCCC @FreeCat ((\x y -> y) :: _ -> _ -> _)
@@ -98,7 +129,7 @@ example19 = toCCC @FreeCat (\(g, x) -> g x)
 -- This may be failing because it tries to toCCC const as an itermediate step, which we've already
 -- seens is tempermental
 -- example20 = toCCC @FreeCat f  where f = (\x -> (x, \y -> x))
-helper = (\x -> (x, snd)) -- where f = \y -> y 
+helper = (\x -> (x, snd)) -- where f = \y -> y
 example20' = toCCC @FreeCat helper -- This one came out Comp (Par Id Id) Dup = Dup
 -- That isn't right. It should be Curry (Id) = Curry (Par Id Id)
 -- What is this? k a (a, k b b) = Id
@@ -122,16 +153,16 @@ example21 = toCCC @FreeCat f  where f = \h g x -> h g x
 example22 = toCCC @FreeCat (\x -> Id . x)
 -- example22' = toCCC @FreeCat (\x -> (Id . x, Id . x)) -- This doesn't work
 example23 = toCCC @FreeCat (\(x,y) -> Dup . x)
--- could define helper functions with preapplied (.). dup = (.) Dup 
+-- could define helper functions with preapplied (.). dup = (.) Dup
 -- then (\x -> dup x) looks more nautral
-example24 = toCCC @FreeCat (\(x,y) -> dup x) where dup = (.) Dup 
+example24 = toCCC @FreeCat (\(x,y) -> dup x) where dup = (.) Dup
 
 
 example25 = toCCC @FreeCat (\(x,y) -> (x,y))
 example26 = toCCC @FreeCat (\(x,(y,z)) -> (y,z))
 -- example27 = toCCC @FreeCat (
 -- or perhaps  f $$ x = applyC . (fanC f x). This makes sense in that f and x are extractors.
--- And then. 
+-- And then.
 -- \x -> mysquare x.
 
 -- this all may be just asking to get confused.
