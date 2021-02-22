@@ -36,8 +36,6 @@ class Cartesian k => NumCat k where
   absC :: Num a => k a a
 
 
-
-
 {-
 instance (NumCat k, Num a) => Num (k z a) where
     f + g = addC . (fanC f g)
@@ -50,7 +48,6 @@ instance (NumCat k, Num a) => Num (k z a) where
 -}
 
 {-
-
 class BoolLike a where
     (&&) :: a -> a -> a
     (||) :: a -> a -> a

@@ -29,33 +29,33 @@ import           Prelude          hiding (id, (.))
 type Rule = forall a b. FreeCat a b -> Maybe (FreeCat a b)
 
 -- stop using prefix rule. It is annoying
-rule_paren :: Rule -- FreeCat a b -> Maybe (FreeCat a b)
-rule_paren (Comp (Comp f g) h) = Just (Comp f (Comp g h))
-rule_paren _                   = Nothing
+ruleParen :: Rule -- FreeCat a b -> Maybe (FreeCat a b)
+ruleParen (Comp (Comp f g) h) = Just (Comp f (Comp g h))
+ruleParen _                   = Nothing
 
-rule_fstsndpar :: FreeCat a b -> Maybe (FreeCat a b)
-rule_fstsndpar (Comp (Par Fst Snd) Dup) = Just Id
-rule_fstsndpar _                        = Nothing
+ruleFstsndpar :: FreeCat a b -> Maybe (FreeCat a b)
+ruleFstsndpar (Comp (Par Fst Snd) Dup) = Just Id
+ruleFstsndpar _                        = Nothing
 
-rule_fst_dup :: FreeCat a b -> Maybe (FreeCat a b)
-rule_fst_dup (Comp Fst Dup) = Just Id
-rule_fst_dup _              = Nothing
+ruleFstDup :: FreeCat a b -> Maybe (FreeCat a b)
+ruleFstDup (Comp Fst Dup) = Just Id
+ruleFstDup _              = Nothing
 
-rule_snd_dup :: FreeCat a b -> Maybe (FreeCat a b)
-rule_snd_dup (Comp Snd Dup) = Just Id
-rule_snd_dup _              = Nothing
+ruleSndDup :: FreeCat a b -> Maybe (FreeCat a b)
+ruleSndDup (Comp Snd Dup) = Just Id
+ruleSndDup _              = Nothing
 
-rule_par_dup :: FreeCat a b -> Maybe (FreeCat a b)
-rule_par_dup (Comp (Par (Comp f Fst) (Comp g Snd)) Dup) = Just (Par f g)
-rule_par_dup _                                          = Nothing
+ruleParDup :: FreeCat a b -> Maybe (FreeCat a b)
+ruleParDup (Comp (Par (Comp f Fst) (Comp g Snd)) Dup) = Just (Par f g)
+ruleParDup _                                          = Nothing
 
-rule_par_dup' :: FreeCat a b -> Maybe (FreeCat a b)
-rule_par_dup' (Comp (Par (Comp f Fst) (Comp g Fst)) Dup) = Just (((Par f g) . Dup) . Fst)
-rule_par_dup' _ = Nothing
+ruleParDup' :: FreeCat a b -> Maybe (FreeCat a b)
+ruleParDup' (Comp (Par (Comp f Fst) (Comp g Fst)) Dup) = Just (((Par f g) . Dup) . Fst)
+ruleParDup' _ = Nothing
 
-rule_par_dup'' :: FreeCat a b -> Maybe (FreeCat a b)
-rule_par_dup'' (Comp (Par (Comp f Snd) (Comp g Snd)) Dup) = Just (((Par f g) . Dup) . Snd)
-rule_par_dup'' _ = Nothing
+ruleParDup'' :: FreeCat a b -> Maybe (FreeCat a b)
+ruleParDup'' (Comp (Par (Comp f Snd) (Comp g Snd)) Dup) = Just (((Par f g) . Dup) . Snd)
+ruleParDup'' _ = Nothing
 
 -- parC dupC" forall f. (_parC f f) . _dupC = _dupC . f
 {- -- needs equality.
@@ -86,19 +86,18 @@ ruleIdRight _           = Nothing
 
 allRules :: [Rule]
 allRules =
-  [ rule_fstsndpar,
+  [ ruleFstsndpar,
     ruleIdRight,
     ruleIdLeft,
-    rule_fst_dup,
-    rule_snd_dup,
-    rule_par_dup,
-    rule_par_dup',
-    rule_par_dup'',
+    ruleFstDup,
+    ruleSndDup,
+    ruleParDup,
+    ruleParDup',
+    ruleParDup'',
     ruleCurry,
     ruleCurry',
     ruleCurryApply,
-    rule_paren -- rule-paren
-    -- turned off rule_paren because it actually hurts the ability to compress the nasty fanout behavior.
+    ruleParen
   ]
 
 -- yeah. Easily possible to get nasty infinite loops

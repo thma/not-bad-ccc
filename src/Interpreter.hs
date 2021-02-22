@@ -1,5 +1,4 @@
 {-# LANGUAGE GADTs #-}
-
 module Interpreter where
   
 import           Cat  
@@ -26,10 +25,17 @@ instance NumCat (->) where
   subC = uncurry (-)
   absC = abs
 
+--f :: FreeCat (a, b1) c
+-- _f :: a -> FreeCat b1 c
+
+x :: a -> FreeCat b c
+x _ = error "test"
+
 interp :: FreeCat a b -> (a -> b)
 interp (Comp f g)  = interp f . interp g
 interp (Par f g)   = parC (interp f) (interp g)
---interp (Curry f)   = (interp f) --interp $ curryC _f
+-- Curry :: FreeCat (a, b) c -> FreeCat a (FreeCat b c)
+interp (Curry f)   = undefined --_x $ curry $ interp f --interp $ curryC _f -- _f :: a -> FreeCat b1 c
 interp (Uncurry f) = interp $ uncurryC f
 interp Apply       = uncurryC interp
 interp Id          = idC
