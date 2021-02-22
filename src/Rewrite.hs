@@ -1,12 +1,11 @@
 {-# LANGUAGE GADTs              #-}
 {-# LANGUAGE ImpredicativeTypes #-}
 {-# LANGUAGE NoImplicitPrelude  #-}
-{-# LANGUAGE RankNTypes         #-}
 
 module Rewrite where
 
-import           Cat
-import           Control.Category
+import           FreeCat
+import           Control.Category ((.))
 import           Prelude          hiding (id, (.))
 
 -- a dead dumb simple rewrite system
