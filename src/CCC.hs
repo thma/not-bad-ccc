@@ -104,8 +104,7 @@ type family Reverse a b where
 class CCC (flag :: Bool) fanindex input out  | flag fanindex input -> out where --
     toCCC' :: input -> out
 
--- toCCC reduces to the case of (stuff) -> single thing that is not -> or (,)
--- curry and fan
+-- toCCC reduces to the case of (stuff) -> single thing that is not -> or (,) curry and fan
 toCCC :: forall k a b a' b' fb. (
           Category k,
           CCC fb () (a -> b) (k a' b'),
@@ -135,7 +134,7 @@ instance (Cartesian k,
           EitherTree ind' (k a' b') b -- (k a' b') ~ b
           ) => CCC 'False ind (a -> b) (k a' b') where
     toCCC' f = ext @ind' (f input) where
-        input = (buildInput @a @fa @ind' (idC @k @a'))
+        input = buildInput @a @fa @ind' (idC @k @a')
 
 
 {-

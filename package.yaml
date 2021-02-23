@@ -28,7 +28,7 @@ library:
   ghc-options:
   - -O
   - -fenable-rewrite-rules
-  - -ddump-rule-rewrites
+#  - -ddump-rule-rewrites
 
 
 executables:
