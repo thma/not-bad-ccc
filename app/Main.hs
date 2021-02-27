@@ -22,6 +22,8 @@ mapTuple :: (Data a, Typeable b) => (b -> b) -> a -> a
 mapTuple f = gmapT (mkT f)
 
 
+
+--
 main :: IO ()
 main = do
   print example1
@@ -49,6 +51,7 @@ main = do
   print example24
   print example25
   print example26
+--}
 
 
 example2 :: FreeCat (a, b) (b, a)
@@ -86,10 +89,10 @@ example12 = simplify $ toCCC ((\x y -> y) :: a -> b -> b)
 
 -- the following incorrectly fails. Early picking of incoherent instance seems to send it into case 3 of CCC rather than curry case 2.
 -- This isn't producing incorrect code, but it does suck.
--- doesnotwork =  toCCC (\x y -> y)
+--doesnotwork =  simplify $ toCCC (\x y -> y)
 
 -- Even this is fine
--- example16 =  toCCC ((\x y -> y) :: _ -> _ -> _)
+--example16 =  toCCC ((\x y -> y)) -- :: _ -> _ -> _)
 exmaple12' = simplify $ toCCC (\x -> (x, x))
 
 example13 = simplify $ toCCC (\x y -> (x, y))
@@ -155,6 +158,8 @@ example26 = simplify $ toCCC (\(x, (y, z)) -> (y, z))
 -- or perhaps  f $$ x = applyC . (fanC f x). This makes sense in that f and x are extractors.
 -- And then.
 -- \x -> mysquare x.
+
+example28 = simplify $ toCCC (+)
 
 -- this all may be just asking to get confused.
 

@@ -16,18 +16,39 @@ data FreeCat a b where
   Snd :: FreeCat (a, b) b
   Dup :: FreeCat a (a, a)
   Par :: FreeCat a b -> FreeCat c d -> FreeCat (a, c) (b, d)
-  Add :: (Num a) => FreeCat (a, a) a
+  Add      :: (Num a) => FreeCat (a, a) a
+  Sub      :: (Num a) => FreeCat (a, a) a
+  AddCurry :: (Num a) => FreeCat a (FreeCat a a)
   Mul :: (Num a) => FreeCat (a, a) a
+  Abs :: (Num a) => FreeCat a a
+  Neg :: (Num a) => FreeCat a a
   Apply :: FreeCat (FreeCat a b, a) b
   Curry :: FreeCat (a, b) c -> FreeCat a (FreeCat b c)
   Uncurry :: FreeCat a (FreeCat b c) -> FreeCat (a, b) c
+  Wrap :: (a -> b) -> FreeCat a b
 
 instance Closed FreeCat where
   applyC = Apply
   curryC = Curry
   uncurryC = Uncurry
 
-deriving instance Show (FreeCat a b)
+instance Show (FreeCat a b) where
+  show (Comp f g) = "Comp " ++ show f ++ " " ++ show g
+  show (Par f g)  = "Par " ++ show f ++ " " ++ show g
+  show (Curry f)  = "Curry " ++ show f
+  show (Uncurry f) = "Uncurry" ++ show f 
+  show Apply      = "Apply"  
+  show Id         = "Id"
+  show Fst        = "Fst"
+  show Snd        = "Snd"
+  show Dup        = "Dup"
+  show Add        = "Add"
+  show Sub        = "Sub"
+  show Abs        = "Abs"
+  show Neg        = "Neg"
+  show AddCurry   = "AddCurry"
+  show Mul        = "Mul"
+  show (Wrap f)   = "Wrap (_ ->  _)"
 
 instance Category FreeCat where
   (.) = Comp
@@ -43,10 +64,10 @@ instance Cartesian FreeCat where
 
 instance NumCat FreeCat where
   mulC = Mul
-  negateC = error "TODO"
+  negateC = Neg
   addC = Add
-  subC = error "TODO"
-  absC = error "TODO"
+  subC = Sub
+  absC = Abs
 
 instance (Num a) => Num (FreeCat z a) where
   f + g = Add . (fanC f g)
