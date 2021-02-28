@@ -28,6 +28,7 @@ data FreeCat a b where
   Curry :: FreeCat (a, b) c -> FreeCat a (FreeCat b c)
   Uncurry :: FreeCat a (FreeCat b c) -> FreeCat (a, b) c
   Wrap :: (a -> b) -> FreeCat a b
+  EQ :: (Num a, Eq a) => FreeCat (a, a) Bool
 
 
 deriving instance (Typeable a, Typeable b) => Typeable (FreeCat a b)
@@ -64,12 +65,14 @@ instance NumCat FreeCat where
   addC = Add
   subC = Sub
   absC = Abs
+  eqC  = FreeCat.EQ
+  
 
 instance (Num a) => Num (FreeCat z a) where
   f + g = Add . (fanC f g)
   f * g = Mul . (fanC f g)
-  negate f = error "todo" -- negateC . f
-  f - g = error " todo " -- subC . (fanC f g)
-  abs f = error " todo" -- absC . f
-  signum = error "TODO"
-  fromInteger = error "TODO"
+  negate f = error "todo negate" -- negateC . f
+  f - g = error " todo -" -- subC . (fanC f g)
+  abs f = error " todo abs" -- absC . f
+  signum = error "TODO sig"
+  fromInteger = error "TODO fromInteger"

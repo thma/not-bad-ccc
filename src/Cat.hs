@@ -34,6 +34,8 @@ class Cartesian k => NumCat k where
   addC :: Num a => k (a, a) a
   subC :: Num a => k (a, a) a
   absC :: Num a => k a a
+  
+  eqC :: (Num a, Eq a) => k (a, a) Bool
 
 
 {-

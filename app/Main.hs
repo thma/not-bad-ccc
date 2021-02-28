@@ -170,6 +170,8 @@ example28 = simplify $ toCCC (+)
 
 fac = simplify $ toCCC f where f = \n -> if n == 0 then 1 else n * f (n-1)
 
+example29 = simplify . toCCC $ \x -> if x < 10 then 0 else 1
+
 -- this all may be just asking to get confused.
 
 -- we could also compile FreeCat as a seperate language, then dump the output to a file and recompile with ghc. Pretty goofy workflow.
