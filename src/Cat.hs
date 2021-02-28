@@ -34,8 +34,12 @@ class Cartesian k => NumCat k where
   addC :: Num a => k (a, a) a
   subC :: Num a => k (a, a) a
   absC :: Num a => k a a
-  
-  eqC :: (Num a, Eq a) => k (a, a) Bool
+
+  eqlC :: (Eq a)  => k (a,a) Bool
+  leqC :: (Ord a) => k (a,a) Bool
+  geqC :: (Ord a) => k (a,a) Bool
+  lesC :: (Ord a) => k (a,a) Bool
+  greC :: (Ord a) => k (a,a) Bool
 
 
 {-
@@ -49,11 +53,9 @@ instance (NumCat k, Num a) => Num (k z a) where
     fromInteger = error "TODO"
 -}
 
-{-
+
 class BoolLike a where
     (&&) :: a -> a -> a
     (||) :: a -> a -> a
     not :: a -> a
     ite :: a -> b -> c -> Either b c
-
--}

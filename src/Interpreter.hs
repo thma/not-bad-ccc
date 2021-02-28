@@ -7,7 +7,7 @@ module Interpreter where
 
 import           Cat  
 import           FreeCat
-import           Data.Bifunctor   (bimap)  
+import           Data.Bifunctor   (bimap)
 import Prelude hiding (EQ)
 
 instance Monoidal (->) where
@@ -29,8 +29,11 @@ instance NumCat (->) where
   addC = uncurry (+)
   subC = uncurry (-)
   absC = abs
-  eqC  = uncurry (==)
-
+  eqlC = uncurry (==)
+  leqC = uncurry (<=)
+  geqC = uncurry (>=)
+  lesC = uncurry (<)
+  greC = uncurry (>)
 
 red term arg = 
   let step = interp term arg
@@ -40,7 +43,7 @@ interp :: FreeCat a b -> (a -> b)
 interp (Comp f g) = interp f . interp g
 interp (Par f g)  = parC (interp f) (interp g)
 interp (Curry f)  = Wrap . curry (interp f)
-interp (Uncurry f) = error "not yet implemented" -- _f $ interp f 
+interp (Uncurry f) = error "not yet implemented" -- _f $ interp f
 interp Apply      = uncurry interp  
 interp Id         = id
 interp Fst        = fst
@@ -53,8 +56,11 @@ interp Neg        = negate
 interp AddCurry   = \x -> Wrap (x +)
 interp Mul        = mulC
 interp (Wrap f)   = f
-interp EQ         = eqC
-
+interp Eql        = eqlC
+interp Leq        = leqC
+interp Geq        = geqC
+interp Les        = lesC
+interp Gre        = greC
  
 
 --Par :: FreeCat a b -> FreeCat c d -> FreeCat (a, c) (b, d)
