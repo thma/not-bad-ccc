@@ -32,6 +32,10 @@ instance NumCat (->) where
   absC = abs
 
 
+red term arg = 
+  let step = interp term arg
+   in step
+
 interp :: FreeCat a b -> (a -> b)
 interp (Comp f g) = interp f . interp g
 interp (Par f g)  = parC (interp f) (interp g)

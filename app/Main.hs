@@ -6,6 +6,7 @@
 {-# LANGUAGE PartialTypeSignatures     #-}
 {-# LANGUAGE TypeApplications          #-}
 {-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE FlexibleContexts #-}
 
 module Main where
 
@@ -16,6 +17,7 @@ import           Data.Data
 import           Data.Generics.Aliases
 import           Prelude               hiding (id, (.))
 import           Rewrite
+import           Interpreter
 
 
 mapTuple :: (Data a, Typeable b) => (b -> b) -> a -> a
@@ -51,6 +53,12 @@ main = do
   print example24
   print example25
   print example26
+  
+  --print fac
+  
+  let x = interp fac 10
+  print 10
+  
 --}
 
 
@@ -81,8 +89,7 @@ example10 = simplify $ toCCC (\x -> x)
 
 example11 = simplify $ toCCC f where f = (\x y -> y)
 
--- raw const is failing, but when you give it a name it doesn't. Very alarming.
--- This is almost certainly because of something in the Incoherent
+example11b = simplify $ toCCC const
 
 --example12 :: Cartesian k => k (k a b) b
 example12 = simplify $ toCCC ((\x y -> y) :: a -> b -> b)
@@ -93,7 +100,7 @@ example12 = simplify $ toCCC ((\x y -> y) :: a -> b -> b)
 
 -- Even this is fine
 --example16 =  toCCC ((\x y -> y)) -- :: _ -> _ -> _)
-exmaple12' = simplify $ toCCC (\x -> (x, x))
+example12' = simplify $ toCCC (\x -> (x, x))
 
 example13 = simplify $ toCCC (\x y -> (x, y))
 
@@ -160,6 +167,8 @@ example26 = simplify $ toCCC (\(x, (y, z)) -> (y, z))
 -- \x -> mysquare x.
 
 example28 = simplify $ toCCC (+)
+
+fac = simplify $ toCCC f where f = \n -> if n == 0 then 1 else n * f (n-1)
 
 -- this all may be just asking to get confused.
 

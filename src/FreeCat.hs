@@ -2,12 +2,14 @@
 {-# LANGUAGE GADTs              #-}
 {-# LANGUAGE NoImplicitPrelude  #-}
 {-# LANGUAGE StandaloneDeriving #-}
+{-# LANGUAGE ConstraintKinds #-}
 
 module FreeCat where
 
 import           Cat
 import           Control.Category
 import           Prelude          hiding (id, (.))
+import           Data.Typeable 
 
 data FreeCat a b where
   Comp :: FreeCat b c -> FreeCat a b -> FreeCat a c
@@ -27,28 +29,22 @@ data FreeCat a b where
   Uncurry :: FreeCat a (FreeCat b c) -> FreeCat (a, b) c
   Wrap :: (a -> b) -> FreeCat a b
 
+
+deriving instance (Typeable a, Typeable b) => Typeable (FreeCat a b)
+
 instance Closed FreeCat where
   applyC = Apply
   curryC = Curry
   uncurryC = Uncurry
 
-instance Show (FreeCat a b) where
-  show (Comp f g) = "Comp " ++ show f ++ " " ++ show g
-  show (Par f g)  = "Par " ++ show f ++ " " ++ show g
-  show (Curry f)  = "Curry " ++ show f
-  show (Uncurry f) = "Uncurry" ++ show f 
-  show Apply      = "Apply"  
-  show Id         = "Id"
-  show Fst        = "Fst"
-  show Snd        = "Snd"
-  show Dup        = "Dup"
-  show Add        = "Add"
-  show Sub        = "Sub"
-  show Abs        = "Abs"
-  show Neg        = "Neg"
-  show AddCurry   = "AddCurry"
-  show Mul        = "Mul"
-  show (Wrap f)   = "Wrap (_ ->  _)"
+-- this little hack is needed to allow auto deriving Show for FreeCat
+instance Show  (a -> b) where
+  showsPrec _ _ = showString "<function>" -- ++ typeInfo x
+--    where
+--      typeInfo x = show (typeOf x)
+       
+deriving instance Show (FreeCat a b)
+
 
 instance Category FreeCat where
   (.) = Comp
