@@ -86,7 +86,7 @@ instance (Num a) => Num (FreeCat z a) where
   fromInteger = error "TODO fromInteger"
 
 --instance (Eq e) => Eq (FreeCat e b) where 
---  x == y = Eql . fanC x y
+--  (==) x y = (==) . fanC x y
 --  
 --instance (Ord a) => Ord (FreeCat o a) where
   

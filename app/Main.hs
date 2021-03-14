@@ -172,9 +172,34 @@ fac = simplify $ toCCC f where f = \n -> if n == 0 then 1 else n * f (n-1)
 
 example29 = simplify . toCCC $ \x -> if x < 10 then 0 else 1
 
+test :: (Eq a, Num a) => a -> a
+test 4 = 1
+test _ = 0
+  
+example30 = simplify . toCCC test
+
+i :: a -> a
+i x = x
+  
+k :: a -> b -> a
+k x _y = x
+  
+s :: (a -> b -> c) -> (a -> b) -> a -> c
+s p q x = p x (q x)  
+
+g :: (t -> a) -> (t -> b) -> t -> (a, b)
+g p q x = (p x, q x)
+
+apply :: (a -> b, a) -> b
+apply (f,x) = f x
+
+s' :: (a -> b -> c) -> (a -> b) -> a -> c
+s' p q x = (apply . g p q) x
+
+
 -- this all may be just asking to get confused.
 
--- we could also compile FreeCat as a seperate language, then dump the output to a file and recompile with ghc. Pretty goofy workflow.
+-- we could also compile FreeCat as a separate language, then dump the output to a file and recompile with ghc. Pretty goofy workflow.
 -- we can also perhaps find a way to push to an external solver. That would be prettty cool.
 
 -- We could super optimize functions if we have a cetagory equivalence test. Just enumerate all possible functions and find the bets one that matches.

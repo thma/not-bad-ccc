@@ -14,9 +14,9 @@ instance Monoidal (->) where
   parC f g = bimap f g
 
 instance Cartesian (->) where
-  fstC (x, y) = x
-  sndC (x, y) = y
-  dupC x = (x, x)
+  fstC (x, _y) = x
+  sndC (_x, y) = y
+  dupC x       = (x, x)
   
 instance Closed (->) where
     applyC (f,x) = f x
@@ -35,15 +35,17 @@ instance NumCat (->) where
   lesC = uncurry (<)
   greC = uncurry (>)
 
-red term arg = 
-  let step = interp term arg
-   in step
+fix :: (a -> a) -> a
+fix f = let {x = f x} in x
+
+red :: FreeCat a1 (a2 -> a2) -> a1 -> a2
+red term arg = fix $ interp term arg
 
 interp :: FreeCat a b -> (a -> b)
 interp (Comp f g) = interp f . interp g
 interp (Par f g)  = parC (interp f) (interp g)
-interp (Curry f)  = Wrap . curry (interp f)
-interp (Uncurry f) = error "not yet implemented" -- _f $ interp f
+interp (Curry f)  = (Wrap . curry (interp f))
+interp (Uncurry f) = error "not yet implemented" -- _f (interp f)
 interp Apply      = uncurry interp  
 interp Id         = id
 interp Fst        = fst
