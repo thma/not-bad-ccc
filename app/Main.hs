@@ -1,5 +1,4 @@
 {-# LANGUAGE AllowAmbiguousTypes       #-}
-{-# LANGUAGE FlexibleContexts          #-}
 {-# LANGUAGE GADTs                     #-}
 {-# LANGUAGE NoImplicitPrelude         #-}
 {-# LANGUAGE NoMonomorphismRestriction #-}
@@ -11,19 +10,17 @@
 module Main where
 
 import           FreeCat
+import           Cat
 import           CCC
 import           Control.Category
 import           Data.Data
 import           Data.Generics.Aliases
-import           Prelude               hiding (id, (.))
+import           Prelude               hiding (id, (.), succ, pred, (&&))
 import           Rewrite
 import           Interpreter
 
-
 mapTuple :: (Data a, Typeable b) => (b -> b) -> a -> a
 mapTuple f = gmapT (mkT f)
-
-
 
 --
 main :: IO ()
@@ -195,6 +192,35 @@ apply (f,x) = f x
 
 s' :: (a -> b -> c) -> (a -> b) -> a -> c
 s' p q x = (apply . g p q) x
+
+x = const
+--------------------
+true = \x y -> x
+false = \x y -> y
+zero = \f x -> x
+one = \f x -> f x
+succ = \n f x -> f(n f x)
+pred = \n f x -> n(\g h -> h (g f)) (\u -> x) (\u ->u)
+mul = \m n f -> m(n f)
+is0 = \n -> n (\x -> false) true
+--y = \f -> (\x -> x x)(\x -> f(x x))
+--fact = y(\f n -> (is0 n) 1 (mul n (f (pred n))))
+--program = fact (succ (succ (succ one)))  -- Compute 4!
+
+isZero x = (== 0)
+
+add2 :: Num a => a -> a
+add2 = (2 +)
+
+cAdd2 = simplify $ toCCC add2
+--cIsZero = simplify $ toCCC isZero
+
+cFix = simplify $ toCCC fix
+
+cAnd :: (BoolLike a) => FreeCat (a, a) a
+cAnd = simplify $ toCCC (uncurry (&&))
+
+
 
 
 -- this all may be just asking to get confused.

@@ -29,14 +29,31 @@ instance NumCat (->) where
   addC = uncurry (+)
   subC = uncurry (-)
   absC = abs
-  eqlC = uncurry (==)
-  leqC = uncurry (<=)
-  geqC = uncurry (>=)
-  lesC = uncurry (<)
-  greC = uncurry (>)
-
+--  eqlC (x,y) = ifTE (x == y,(True,False))
+  
+--  eqlC = uncurry (==)
+--  leqC = uncurry (<=)
+--  geqC = uncurry (>=)
+--  lesC = uncurry (<)
+--  greC = uncurry (>)
+  
+instance BoolCat (->) where
+  andC = uncurry (Cat.&&)
+  orC  = uncurry (Cat.||)
+  notC = Cat.not
+  ifTE = uncurry Cat.ite
+  
+instance BoolLike Bool where
+  (&&) = (Prelude.&&)
+  (||) = (Prelude.||)
+  not  = Prelude.not
+  ite test (thenPart, elsePart) = if test then thenPart else elsePart
+  
 fix :: (a -> a) -> a
 fix f = let {x = f x} in x
+  
+fact :: (Ord p, Num p) => p -> p
+fact = fix (\rec n -> if n <= 1 then 1 else n * rec (n-1))
 
 red :: FreeCat a1 (a2 -> a2) -> a1 -> a2
 red term arg = fix $ interp term arg
@@ -44,7 +61,7 @@ red term arg = fix $ interp term arg
 interp :: FreeCat a b -> (a -> b)
 interp (Comp f g) = interp f . interp g
 interp (Par f g)  = parC (interp f) (interp g)
-interp (Curry f)  = (Wrap . curry (interp f))
+interp (Curry f)  = Wrap . curry (interp f)
 interp (Uncurry f) = error "not yet implemented" -- _f (interp f)
 interp Apply      = uncurry interp  
 interp Id         = id
@@ -63,6 +80,10 @@ interp Leq        = leqC
 interp Geq        = geqC
 interp Les        = lesC
 interp Gre        = greC
+interp And        = andC
+interp Or         = orC
+interp Not        = notC
+interp IfThenElse = ifTE
  
 
 --Par :: FreeCat a b -> FreeCat c d -> FreeCat (a, c) (b, d)

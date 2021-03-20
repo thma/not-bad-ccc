@@ -28,11 +28,16 @@ data FreeCat a b where
   Curry :: FreeCat (a, b) c -> FreeCat a (FreeCat b c)
   Uncurry :: FreeCat a (FreeCat b c) -> FreeCat (a, b) c
   Wrap :: (a -> b) -> FreeCat a b
-  Eql :: (Eq a)  => FreeCat (a, a) Bool
-  Leq :: (Ord a) => FreeCat (a, a) Bool
-  Geq :: (Ord a) => FreeCat (a, a) Bool
-  Les :: (Ord a) => FreeCat (a, a) Bool
-  Gre :: (Ord a) => FreeCat (a, a) Bool
+  Eql :: (Eq a, BoolLike b)  => FreeCat (a, a) b
+  Leq :: (Ord a, BoolLike b) => FreeCat (a, a) b
+  Geq :: (Ord a, BoolLike b) => FreeCat (a, a) b
+  Les :: (Ord a, BoolLike b) => FreeCat (a, a) b
+  Gre :: (Ord a, BoolLike b) => FreeCat (a, a) b
+  -- Boolean
+  And :: (BoolLike a) => FreeCat (a, a) a
+  Or  :: (BoolLike a) => FreeCat (a, a) a
+  Not :: (BoolLike a) => FreeCat a a
+  IfThenElse :: (BoolLike a) => FreeCat (a, (b, b)) b
 
 
 deriving instance (Typeable a, Typeable b) => Typeable (FreeCat a b)
@@ -75,7 +80,6 @@ instance NumCat FreeCat where
   lesC = Les
   greC = Gre
   
-
 instance (Num a) => Num (FreeCat z a) where
   f + g = Add . fanC f g
   f * g = Mul . fanC f g
@@ -83,7 +87,18 @@ instance (Num a) => Num (FreeCat z a) where
   f - g = Sub . fanC f g
   abs f = Abs . f
   signum = error "TODO sig"
-  fromInteger = error "TODO fromInteger"
+  fromInteger i = error "TODO fromInteger"
+  
+instance BoolCat FreeCat where
+  andC = And
+  orC  = Or
+  notC = Not
+  ifTE = IfThenElse
+  
+instance (BoolLike a) => BoolLike (FreeCat z a) where
+  a && b = And . fanC a b
+  a || b = Or . fanC a b
+  not a  = Not . a
 
 --instance (Eq e) => Eq (FreeCat e b) where 
 --  (==) x y = (==) . fanC x y
