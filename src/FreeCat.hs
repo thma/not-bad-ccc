@@ -74,7 +74,7 @@ instance NumCat FreeCat where
   addC = Add
   subC = Sub
   absC = Abs
-  eqlC = Eql
+--  eqlC = Eql
   leqC = Leq
   geqC = Geq
   lesC = Les
@@ -96,9 +96,12 @@ instance BoolCat FreeCat where
   ifTE = IfThenElse
   
 instance (BoolLike a) => BoolLike (FreeCat z a) where
-  a && b = And . fanC a b
-  a || b = Or . fanC a b
-  not a  = Not . a
+  f && g = And . fanC f g
+  f || g = Or . fanC f g
+  not f  = Not . f
+  --ite f g = IfThenElse . fanC f g
+
+
 
 --instance (Eq e) => Eq (FreeCat e b) where 
 --  (==) x y = (==) . fanC x y

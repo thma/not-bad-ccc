@@ -220,7 +220,11 @@ cFix = simplify $ toCCC fix
 cAnd :: (BoolLike a) => FreeCat (a, a) a
 cAnd = simplify $ toCCC (uncurry (&&))
 
+fact :: (Ord p, Num p) => p -> p
+fact = fix (\rec n -> if n <= 1 then 1 else n * rec (n-1))
 
+cFact :: (Ord (FreeCat a' a'), Num a') => FreeCat a' a'
+cFact = simplify $ toCCC fact
 
 
 -- this all may be just asking to get confused.

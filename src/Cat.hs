@@ -36,36 +36,11 @@ class Cartesian k => NumCat k where
   subC :: Num a => k (a, a) a
   absC :: Num a => k a a
 
-  eqlC :: (Eq a, BoolLike b)  => k (a,a) b
+--  eqlC :: (Eq a, BoolLike b)  => k (a,a) b
   leqC :: (Ord a, BoolLike b) => k (a,a) b
   geqC :: (Ord a, BoolLike b) => k (a,a) b
   lesC :: (Ord a, BoolLike b) => k (a,a) b
   greC :: (Ord a, BoolLike b) => k (a,a) b
-
-
-{-
-instance (NumCat k, Num a) => Num (k z a) where
-    f + g = addC . (fanC f g)
-    f * g = mulC . (fanC f g)
-    negate f = negateC . f
-    f - g = subC . (fanC f g)
-    abs f = absC . f
-    signum = error "TODO"
-    fromInteger = error "TODO"
--}
-
-{--
-class OpCon op con where
-  inOp :: con a && con b |- con (a `op` b)
-
-type OkProd k = OpCon (Prod k) (Ok' k)
-
--- | Category with product.
-class (Category k, OkProd k) => ProductCat k where
-  exl :: Ok2 k a b => Prod k a b `k` a
-  exr :: Ok2 k a b => Prod k a b `k` b
-  dup :: Ok  k a => a `k` Prod k a a
---}
 
 class Cartesian k => BoolCat k where
   andC :: BoolLike a => k (a, a) a
@@ -79,11 +54,5 @@ class BoolLike a where
   not :: a -> a
   ite :: a -> (b, b) -> b
     
---type BoolOf k = Bool
-
---type Ok k = Type -> Constraint
-
---class (Cartesian k, Ok k (BoolOf k)) => BoolCat k where
---  -- type BoolOf k
---  notC :: BoolOf k `k` BoolOf k
---  andC, orC, xorC :: Prod k (BoolOf k) (BoolOf k) `k` BoolOf k
+class Cartesian k => EqCat k where
+  eqlC :: (Eq a, BoolLike b)  => k (a,a) b  
