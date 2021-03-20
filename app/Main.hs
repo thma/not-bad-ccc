@@ -211,17 +211,14 @@ is0 = \n -> n (\x -> false) true
 isZero :: (EqlLike a b, Num a) => p -> a -> b
 isZero x = (== 0)
 
---add2 :: Num a => a -> a
-add2 :: Fractional a => a -> a
-add2 = (2.0 +)
 
---cAdd2 :: Num a => FreeCat a a
-cAdd2 :: Fractional (FreeCat a' a') => FreeCat a' a'
-cAdd2 = simplify $ toCCC add2
 
---cIsZero :: (EqlLike (FreeCat (a', b') b'), BoolLike c', Num b') => FreeCat a' (FreeCat b' c')
+
 cIsZero :: (EqlLike (FreeCat (a', b') b') (FreeCat (a', b') c'), Num b') => FreeCat a' (FreeCat b' c')
 cIsZero = simplify $ toCCC isZero
+
+--isTrue :: (BoolLike b) => b -> Bool
+--isTrue x = True Cat.&& x
 
 cFix :: FreeCat (FreeCat a' a') a'
 cFix = simplify $ toCCC fix
@@ -229,8 +226,8 @@ cFix = simplify $ toCCC fix
 cAnd :: (BoolLike a) => FreeCat (a, a) a
 cAnd = simplify $ toCCC (uncurry (&&))
 
-fact :: (Ord p, Num p) => p -> p
-fact = fix (\rec n -> if n <= 1 then 1 else n * rec (n-1))
+--fact :: (EqlLike p p, Num p) => p -> p
+fact = fix (\rec n -> if  n <= 1 then 1 else n * rec (n-1))
 
 cFact :: (Ord (FreeCat a' a'), Num a') => FreeCat a' a'
 cFact = simplify $ toCCC fact

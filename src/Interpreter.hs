@@ -22,6 +22,7 @@ eval (Curry f)  = Wrap . curry (eval f)
 eval (Uncurry f) = error "not yet implemented" -- _f (interp f)
 eval Apply      = uncurry eval
 eval Id         = id
+eval (IntConst i) = const i
 eval FromInt    = fromInteger
 eval Fst        = fst
 eval Snd        = snd

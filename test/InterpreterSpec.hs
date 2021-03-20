@@ -2,7 +2,6 @@ module InterpreterSpec where
 
 import           Test.Hspec
 import           Test.QuickCheck
--- import           Test.QuickCheck.Property as P
 
 import Interpreter
 import Rewrite
@@ -30,6 +29,9 @@ absCCC = simplify . toCCC $ abs
 example6 :: FreeCat (Integer, Integer) (Integer, Integer)
 example6 = simplify $ toCCC (\(x, y) -> (y + (x * y), x * y))
 
+add2CCC :: FreeCat Integer Integer
+add2CCC = simplify $ toCCC (2 +)
+
 spec :: Spec
 spec = do
   describe "The CCC Interpreter" $ do
@@ -47,3 +49,5 @@ spec = do
       property $ \x -> eval absCCC x `shouldBe` abs x
     it "interpretes combination of + and *" $
       property $ \x y -> eval example6 (x,y) `shouldBe` (\(a, b) -> (b + (a * b), a * b)) (x,y)
+    it "interpretes partial evaluated functions" $
+      property $ \x -> eval add2CCC x `shouldBe` x + 2     

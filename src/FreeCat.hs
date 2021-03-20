@@ -17,6 +17,7 @@ import           Prelude          hiding (id, (.))
 data FreeCat a b where
   Comp :: FreeCat b c -> FreeCat a b -> FreeCat a c
   Id :: FreeCat a a
+  IntConst :: Integer -> FreeCat a Integer
   FromInt :: (Num b) => FreeCat Integer b
   Fst :: FreeCat (a, b) a
   Snd :: FreeCat (a, b) b
@@ -87,7 +88,7 @@ instance (Num a) => Num (FreeCat z a) where
   f - g = Sub . fanC f g
   abs f = Abs . f
   signum = error "TODO sig"
-  fromInteger = error "TODO fromInteger"
+  fromInteger i = FromInt . IntConst i --error "TODO fromInteger"
 
 instance BoolCat FreeCat where
   andC = And
