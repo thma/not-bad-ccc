@@ -7,7 +7,7 @@ import           Cat
  This module contains instance definitions of (->) for all required typeclasses.
  This is required to allow interpretation of FreeCat terms as standard Haskell functions.
  
- See for instance interp :: FreeCat a b -> (a -> b) in the Interpreter module.
+ See for instance eval :: FreeCat a b -> (a -> b) in the Interpreter module.
 --} 
 
   
@@ -45,4 +45,5 @@ instance BoolCat (->) where
   notC = Cat.not
   ifTE = uncurry Cat.ite
 
-
+instance EqCat (->) where
+  eqlC = uncurry (Cat.==)

@@ -34,16 +34,16 @@ spec :: Spec
 spec = do
   describe "The CCC Interpreter" $ do
     it "interpretes the id function" $
-      property $ \x -> interp idCCC x `shouldBe` x
+      property $ \x -> eval idCCC x `shouldBe` x
     it "interpretes addition" $
-      property $ \x y -> interp addCCC (x,y) `shouldBe` x+y
+      property $ \x y -> eval addCCC (x,y) `shouldBe` x+y
     it "interpretes multiplication" $
-      property $ \x y -> interp mulCCC (x,y) `shouldBe` x*y
+      property $ \x y -> eval mulCCC (x,y) `shouldBe` x*y
     it "interpretes substraction" $
-      property $ \x y -> interp subCCC (x,y) `shouldBe` x-y      
+      property $ \x y -> eval subCCC (x,y) `shouldBe` x-y
     it "interpretes negation" $
-      property $ \x -> interp negCCC x `shouldBe` negate x
+      property $ \x -> eval negCCC x `shouldBe` negate x
     it "interpretes absolute" $
-      property $ \x -> interp absCCC x `shouldBe` abs x
+      property $ \x -> eval absCCC x `shouldBe` abs x
     it "interpretes combination of + and *" $
-      property $ \x y -> interp example6 (x,y) `shouldBe` (\(a, b) -> (b + (a * b), a * b)) (x,y)       
+      property $ \x y -> eval example6 (x,y) `shouldBe` (\(a, b) -> (b + (a * b), a * b)) (x,y)

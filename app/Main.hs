@@ -15,7 +15,7 @@ import           CCC
 import           Control.Category
 import           Data.Data
 import           Data.Generics.Aliases
-import           Prelude               hiding (id, (.), succ, pred, (&&))
+import           Prelude               hiding (id, (.), succ, pred, (&&), (==))
 import           Rewrite
 import           Interpreter
 
@@ -53,7 +53,7 @@ main = do
   
   --print fac
   
-  let x = interp fac 10
+  let x = eval fac 10
   print 10
   
 --}
@@ -207,14 +207,23 @@ is0 = \n -> n (\x -> false) true
 --fact = y(\f n -> (is0 n) 1 (mul n (f (pred n))))
 --program = fact (succ (succ (succ one)))  -- Compute 4!
 
+--isZero :: (EqlLike a, BoolLike b, Num a) => p -> a -> b
+isZero :: (EqlLike a b, Num a) => p -> a -> b
 isZero x = (== 0)
 
-add2 :: Num a => a -> a
-add2 = (2 +)
+--add2 :: Num a => a -> a
+add2 :: Fractional a => a -> a
+add2 = (2.0 +)
 
+--cAdd2 :: Num a => FreeCat a a
+cAdd2 :: Fractional (FreeCat a' a') => FreeCat a' a'
 cAdd2 = simplify $ toCCC add2
---cIsZero = simplify $ toCCC isZero
 
+--cIsZero :: (EqlLike (FreeCat (a', b') b'), BoolLike c', Num b') => FreeCat a' (FreeCat b' c')
+cIsZero :: (EqlLike (FreeCat (a', b') b') (FreeCat (a', b') c'), Num b') => FreeCat a' (FreeCat b' c')
+cIsZero = simplify $ toCCC isZero
+
+cFix :: FreeCat (FreeCat a' a') a'
 cFix = simplify $ toCCC fix
 
 cAnd :: (BoolLike a) => FreeCat (a, a) a

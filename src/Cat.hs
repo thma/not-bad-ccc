@@ -3,12 +3,18 @@
 {-# LANGUAGE NoImplicitPrelude  #-}
 {-# LANGUAGE ConstraintKinds #-}
 {-# LANGUAGE AllowAmbiguousTypes #-}
-
+{-# LANGUAGE MultiParamTypeClasses #-}
 
 module Cat where
 
 import           Control.Category
 import           Prelude          hiding (id, (.))
+
+{--
+This module contains definition of categories that are required for
+modelling Closed Cartesian Categories.
+--}
+ 
 
 class Category k => Monoidal k where
   parC :: k a c -> k b d -> k (a, b) (c, d)
@@ -53,6 +59,18 @@ class BoolLike a where
   (||) :: a -> a -> a
   not :: a -> a
   ite :: a -> (b, b) -> b
+  
+instance BoolLike Bool where
+  (&&) = (Prelude.&&)
+  (||) = (Prelude.||)
+  not  = Prelude.not
+  ite test (thenPart, elsePart) = if test then thenPart else elsePart
     
 class Cartesian k => EqCat k where
-  eqlC :: (Eq a, BoolLike b)  => k (a,a) b  
+  eqlC :: (EqlLike a b, BoolLike b)  => k (a,a) b  
+  
+class EqlLike a b where
+  (==) :: a -> a -> b
+  
+instance EqlLike Int Bool where
+  (==) = (Prelude.==)
