@@ -42,4 +42,6 @@ eval Gre        = greC
 eval And        = andC
 eval Or         = orC
 eval Not        = notC
+eval T          = const true
+eval F          = const false
 eval IfThenElse = ifTE

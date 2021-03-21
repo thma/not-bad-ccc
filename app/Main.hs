@@ -1,11 +1,8 @@
-{-# LANGUAGE AllowAmbiguousTypes       #-}
-{-# LANGUAGE GADTs                     #-}
 {-# LANGUAGE NoImplicitPrelude         #-}
 {-# LANGUAGE NoMonomorphismRestriction #-}
 {-# LANGUAGE PartialTypeSignatures     #-}
 {-# LANGUAGE TypeApplications          #-}
-{-# LANGUAGE RankNTypes #-}
-{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE FlexibleContexts          #-}
 
 module Main where
 
@@ -195,14 +192,14 @@ s' p q x = (apply . g p q) x
 
 x = const
 --------------------
-true = \x y -> x
-false = \x y -> y
+--true = \x y -> x
+--false = \x y -> y
 zero = \f x -> x
 one = \f x -> f x
 succ = \n f x -> f(n f x)
 pred = \n f x -> n(\g h -> h (g f)) (\u -> x) (\u ->u)
 mul = \m n f -> m(n f)
-is0 = \n -> n (\x -> false) true
+--is0 = \n -> n (\x -> false) true
 --y = \f -> (\x -> x x)(\x -> f(x x))
 --fact = y(\f n -> (is0 n) 1 (mul n (f (pred n))))
 --program = fact (succ (succ (succ one)))  -- Compute 4!
@@ -214,23 +211,31 @@ isZero x = (== 0)
 cIsZero :: (EqLike (FreeCat (a', b') b') (FreeCat (a', b') c'), Num b') => FreeCat a' (FreeCat b' c')
 cIsZero = simplify $ toCCC isZero
 
---isTrue :: (BoolLike b) => b -> Bool
---isTrue x = True Cat.&& x
+isTrue :: BoolLike a => a -> a
+isTrue x = true && x
+
+cIsTrue :: BoolLike a => FreeCat a a
+cIsTrue = simplify $ toCCC isTrue
 
 cFix :: FreeCat (FreeCat a' a') a'
 cFix = simplify $ toCCC fix
 
-cAnd :: (BoolLike a) => FreeCat (a, a) a
-cAnd = simplify $ toCCC (uncurry (&&))
+--cAnd :: (BoolLike a) => FreeCat (a, a) a
+--cAnd :: (BoolLike b') => FreeCat (b', b') b'
+--cAnd = simplify $ toCCC (uncurry (&&))
 
 --fact :: (EqlLike p p, Num p) => p -> p
 fact = fix (\rec n -> if  n <= 1 then 1 else n * rec (n-1))
 
-cFact :: (Ord (FreeCat a' a'), Num a') => FreeCat a' a'
+--cFact :: (Ord (FreeCat a' a'), Num a') => FreeCat a' a'
 cFact = simplify $ toCCC fact
 
-cEqual :: EqLike (FreeCat (a, a) a) (FreeCat (a, a) b) => FreeCat (a, a) b
+cEqual :: (BoolLike b, EqLike (FreeCat (a, a) a) (FreeCat (a, a) b)) => FreeCat (a, a) b
 cEqual = simplify $ toCCC (uncurry (==))
 
---test1 :: (EqLike (FreeCat (a, a) a) (FreeCat (a, a) b), Num a) => b
---test1 = eval cEqual (3,4)
+pair :: (Integer,Integer)
+pair = (3,4)
+
+
+--test1 :: (BoolLike b, EqLike (FreeCat (a, a) a) (FreeCat (a, a) b)) => b
+test1 = eval cEqual pair
