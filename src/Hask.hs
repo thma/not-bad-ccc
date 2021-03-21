@@ -1,3 +1,4 @@
+{-# OPTIONS_GHC -fno-warn-orphans  #-}
 module Hask where
 
 import           Data.Bifunctor   (bimap)
@@ -29,7 +30,6 @@ instance NumCat (->) where
   addC = uncurry (+)
   subC = uncurry (-)
   absC = abs
---  eqlC (x,y) = ifTE (x == y,(True,False))
 
 --  eqlC = uncurry (==)
 --  leqC = uncurry (<=)

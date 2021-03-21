@@ -233,9 +233,20 @@ cFact = simplify $ toCCC fact
 cEqual :: (BoolLike b, EqLike (FreeCat (a, a) a) (FreeCat (a, a) b)) => FreeCat (a, a) b
 cEqual = simplify $ toCCC (uncurry (==))
 
+is0 :: (BoolLike b, Num a, EqLike a b) => a -> b
+is0 x = x == 0
+
+cIs0 :: (BoolLike b, Num a, EqLike a (FreeCat a b)) => FreeCat a b
+cIs0 = simplify $ toCCC is0
+
 pair :: (Integer,Integer)
 pair = (3,4)
 
+mains :: IO ()
+mains = do
+  print (is0 (8::Integer) :: Bool)
+  print (eval (cIs0 :: FreeCat Integer Bool) 8)
+  
+--  print (eval cIs0 (6::Integer) :: Bool)
 
---test1 :: (BoolLike b, EqLike (FreeCat (a, a) a) (FreeCat (a, a) b)) => b
 test1 = eval cEqual pair

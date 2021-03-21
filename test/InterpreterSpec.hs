@@ -41,7 +41,7 @@ add2CCC = simplify $ toCCC (2 +)
 
 
 isTrueCCC :: FreeCat Bool Bool
-isTrueCCC = simplify $ toCCC (\x -> true Cat.&& x)
+isTrueCCC = simplify $ toCCC (true Cat.&&)
 
 spec :: Spec
 spec = do

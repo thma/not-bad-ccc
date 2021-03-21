@@ -41,8 +41,8 @@ data FreeCat a b where
   And :: (BoolLike a) => FreeCat (a, a) a
   Or :: (BoolLike a) => FreeCat (a, a) a
   Not :: (BoolLike a) => FreeCat a a
-  T :: (BoolLike a) => FreeCat a a
-  F :: (BoolLike a) => FreeCat a a 
+  T :: (BoolLike a) => FreeCat b a
+  F :: (BoolLike a) => FreeCat b a 
   IfThenElse :: (BoolLike a) => FreeCat (a, (b, b)) b
 
 instance Closed FreeCat where
@@ -95,7 +95,7 @@ instance BoolCat FreeCat where
   notC = Not
   ifTE = IfThenElse
 
-instance (BoolLike a) => BoolLike (FreeCat a a) where
+instance (BoolLike b) => BoolLike (FreeCat a b) where
   f && g = And . fanC f g
   f || g = Or . fanC f g
   not f = Not . f
@@ -106,6 +106,9 @@ instance (BoolLike a) => BoolLike (FreeCat a a) where
 instance EqCat FreeCat where
   eqlC = Eql
 
---   Eql :: (EqlLike a, BoolLike b)  => FreeCat (a, a) b
-instance (EqLike a b, BoolLike b) => EqLike (FreeCat (a, a) b) b where
+instance (BoolLike b, EqLike a b) => EqLike (FreeCat a a) b where
   f == g = undefined --Eql . fanC f g
+  
+instance EqLike Integer (FreeCat Integer Bool) where
+  (==) = (Cat.==)
+
