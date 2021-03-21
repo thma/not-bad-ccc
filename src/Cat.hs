@@ -14,7 +14,7 @@ import           Prelude          hiding (id, (.))
 This module contains definition of categories that are required for
 modelling Closed Cartesian Categories.
 --}
- 
+
 
 class Category k => Monoidal k where
   parC :: k a c -> k b d -> k (a, b) (c, d)
@@ -59,18 +59,18 @@ class BoolLike a where
   (||) :: a -> a -> a
   not :: a -> a
   ite :: a -> (b, b) -> b
-  
+
 instance BoolLike Bool where
   (&&) = (Prelude.&&)
   (||) = (Prelude.||)
   not  = Prelude.not
   ite test (thenPart, elsePart) = if test then thenPart else elsePart
-    
+
 class Cartesian k => EqCat k where
-  eqlC :: (EqlLike a b, BoolLike b)  => k (a,a) b  
-  
-class EqlLike a b where
+  eqlC :: (EqLike a b, BoolLike b)  => k (a,a) b
+
+class EqLike a b where
   (==) :: a -> a -> b
-  
-instance EqlLike Int Bool where
+
+instance EqLike Integer Bool where
   (==) = (Prelude.==)

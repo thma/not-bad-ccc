@@ -11,7 +11,6 @@ module FreeCat where
 
 import           Cat
 import           Control.Category
-import           Data.Typeable
 import           Prelude          hiding (id, (.))
 
 data FreeCat a b where
@@ -33,7 +32,7 @@ data FreeCat a b where
   Curry :: FreeCat (a, b) c -> FreeCat a (FreeCat b c)
   Uncurry :: FreeCat a (FreeCat b c) -> FreeCat (a, b) c
   Wrap :: (a -> b) -> FreeCat a b
-  Eql :: (EqlLike a b, BoolLike b) => FreeCat (a, a) b
+  Eql :: (EqLike a b, BoolLike b) => FreeCat (a, a) b
   Leq :: (Ord a, BoolLike b) => FreeCat (a, a) b
   Geq :: (Ord a, BoolLike b) => FreeCat (a, a) b
   Les :: (Ord a, BoolLike b) => FreeCat (a, a) b
@@ -43,8 +42,6 @@ data FreeCat a b where
   Or :: (BoolLike a) => FreeCat (a, a) a
   Not :: (BoolLike a) => FreeCat a a
   IfThenElse :: (BoolLike a) => FreeCat (a, (b, b)) b
-
-deriving instance (Typeable a, Typeable b) => Typeable (FreeCat a b)
 
 instance Closed FreeCat where
   applyC = Apply
@@ -100,12 +97,11 @@ instance (BoolLike a) => BoolLike (FreeCat z a) where
   f && g = And . fanC f g
   f || g = Or . fanC f g
   not f = Not . f
-
 --ite f g = IfThenElse . fanC f g
 
 instance EqCat FreeCat where
   eqlC = Eql
 
 --   Eql :: (EqlLike a, BoolLike b)  => FreeCat (a, a) b
-instance (EqlLike a b, BoolLike b) => EqlLike (FreeCat (a, a) b) b where
+instance (EqLike a b, BoolLike b) => EqLike (FreeCat (a, a) b) b where
   f == g = undefined --Eql . fanC f g

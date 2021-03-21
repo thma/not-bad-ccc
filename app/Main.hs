@@ -208,13 +208,10 @@ is0 = \n -> n (\x -> false) true
 --program = fact (succ (succ (succ one)))  -- Compute 4!
 
 --isZero :: (EqlLike a, BoolLike b, Num a) => p -> a -> b
-isZero :: (EqlLike a b, Num a) => p -> a -> b
+isZero :: (EqLike a b, Num a) => p -> a -> b
 isZero x = (== 0)
 
-
-
-
-cIsZero :: (EqlLike (FreeCat (a', b') b') (FreeCat (a', b') c'), Num b') => FreeCat a' (FreeCat b' c')
+cIsZero :: (EqLike (FreeCat (a', b') b') (FreeCat (a', b') c'), Num b') => FreeCat a' (FreeCat b' c')
 cIsZero = simplify $ toCCC isZero
 
 --isTrue :: (BoolLike b) => b -> Bool
@@ -232,20 +229,8 @@ fact = fix (\rec n -> if  n <= 1 then 1 else n * rec (n-1))
 cFact :: (Ord (FreeCat a' a'), Num a') => FreeCat a' a'
 cFact = simplify $ toCCC fact
 
+cEqual :: EqLike (FreeCat (a, a) a) (FreeCat (a, a) b) => FreeCat (a, a) b
+cEqual = simplify $ toCCC (uncurry (==))
 
--- this all may be just asking to get confused.
-
--- we could also compile FreeCat as a separate language, then dump the output to a file and recompile with ghc. Pretty goofy workflow.
--- we can also perhaps find a way to push to an external solver. That would be prettty cool.
-
--- We could super optimize functions if we have a cetagory equivalence test. Just enumerate all possible functions and find the bets one that matches.
--- Z3?
--- There might be
-
--- Other possible heurisitcs:
--- Simulated Annealing Maybe.
-
--- GLobal optimization:
--- Dynamic Programming?
--- MIP ?
--- CSP ?
+--test1 :: (EqLike (FreeCat (a, a) a) (FreeCat (a, a) b), Num a) => b
+--test1 = eval cEqual (3,4)
